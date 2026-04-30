@@ -131,7 +131,11 @@ export default function CustomerDashboard() {
           {loading ? (
              <ActivityIndicator size="large" color={Colors.light.primary} style={{ margin: 20 }} />
           ) : (
-             books.map(book => (
+             books.filter(book => {
+                 if (activeCategory === 1) return book.stockCount > 0 && book.stockCount <= 5;
+                 if (activeCategory === 2) return book.stockCount === 0;
+                 return true;
+             }).map(book => (
                <BookCard 
                  key={book._id}
                  id={book._id}

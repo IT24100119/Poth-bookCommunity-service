@@ -8,6 +8,8 @@ import { Colors } from '../../constants/theme';
 import { AuthContext } from '../../src/context/AuthContext';
 import { getShopByIdAPI } from '../../src/api/shopApi';
 import { getReviewsAPI, addReviewAPI } from '../../src/api/reviewApi';
+import { getBooksByShopAPI } from '../../src/api/bookApi';
+import { BookCard } from '../../components/BookCard';
 import { Button } from '../../components/Button';
 
 const { height } = Dimensions.get('window');
@@ -20,6 +22,7 @@ export default function ShopDetailsScreen() {
   const [activeTab, setActiveTab] = useState('Overview');
   const [shop, setShop] = useState<any>(null);
   const [reviews, setReviews] = useState<any[]>([]);
+  const [books, setBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Review Form State
@@ -52,6 +55,8 @@ export default function ShopDetailsScreen() {
         setShop(shopRes.data);
         const reviewsRes = await getReviewsAPI(id);
         setReviews(reviewsRes.data);
+        const booksRes = await getBooksByShopAPI(id);
+        setBooks(booksRes.data);
       } catch (error) {
         console.error("Failed to load shop or reviews", error);
         Alert.alert("Error", "Could not load shop details.");
@@ -79,10 +84,16 @@ export default function ShopDetailsScreen() {
           formData.append('rating', String(rating));
           formData.append('comment', comment);
           if (selectedImage) {
-              const filename = selectedImage.split('/').pop() || 'photo.jpg';
-              const match = /\.([a-zA-Z]+)$/.exec(filename);
-              const type = match ? `image/${match[1].toLowerCase()}` : 'image/jpeg';
-              formData.append('image', { uri: selectedImage, name: filename, type } as any);
+              if (Platform.OS === 'web') {
+                  const res = await fetch(selectedImage);
+                  const blob = await res.blob();
+                  formData.append('image', blob, 'photo.jpg');
+              } else {
+                  const filename = selectedImage.split('/').pop() || 'photo.jpg';
+                  const match = /\.([a-zA-Z]+)$/.exec(filename);
+                  const type = match ? `image/${match[1].toLowerCase()}` : 'image/jpeg';
+                  formData.append('image', { uri: selectedImage, name: filename, type } as any);
+              }
           }
           await addReviewAPI(formData, user.token);
           const reviewsRes = await getReviewsAPI(id);
@@ -147,8 +158,11 @@ export default function ShopDetailsScreen() {
           <TouchableOpacity onPress={() => setActiveTab('Overview')}>
             <Text style={[styles.tabText, activeTab === 'Overview' && styles.tabTextActive]}>Overview</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => setActiveTab('Books')}>
+            <Text style={[styles.tabText, activeTab === 'Books' && styles.tabTextActive]}>Books</Text>
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => setActiveTab('Reviews')}>
-            <Text style={[styles.tabText, activeTab === 'Reviews' && styles.tabTextActive]}>Reviews ({reviews.length})</Text>
+            <Text style={[styles.tabText, activeTab === 'Reviews' && styles.tabTextActive]}>Reviews</Text>
           </TouchableOpacity>
         </View>
 
@@ -164,6 +178,29 @@ export default function ShopDetailsScreen() {
                 {shop.description}
             </Text>
             <View style={{ height: 100 }} />
+            </ScrollView>
+        )}
+
+        {activeTab === 'Books' && (
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingBottom: 100 }}>
+                    {books.length === 0 ? (
+                        <Text style={{ color: '#999', marginTop: 20 }}>No books available in this shop.</Text>
+                    ) : (
+                        books.map(book => (
+                            <View key={book._id} style={{ width: '48%', marginBottom: 15 }}>
+                                <BookCard
+                                    id={book._id}
+                                    title={book.title}
+                                    author={book.author}
+                                    rating={book.averageRating || 0}
+                                    image={book.imageUrl}
+                                    onPress={() => router.push({ pathname: '/book/[id]', params: { id: book._id } })}
+                                />
+                            </View>
+                        ))
+                    )}
+                </View>
             </ScrollView>
         )}
 

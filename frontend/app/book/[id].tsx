@@ -79,10 +79,16 @@ export default function BookDetailsScreen() {
           formData.append('rating', String(rating));
           formData.append('comment', comment);
           if (selectedImage) {
-              const filename = selectedImage.split('/').pop() || 'photo.jpg';
-              const match = /\.([a-zA-Z]+)$/.exec(filename);
-              const type = match ? `image/${match[1].toLowerCase()}` : 'image/jpeg';
-              formData.append('image', { uri: selectedImage, name: filename, type } as any);
+              if (Platform.OS === 'web') {
+                  const res = await fetch(selectedImage);
+                  const blob = await res.blob();
+                  formData.append('image', blob, 'photo.jpg');
+              } else {
+                  const filename = selectedImage.split('/').pop() || 'photo.jpg';
+                  const match = /\.([a-zA-Z]+)$/.exec(filename);
+                  const type = match ? `image/${match[1].toLowerCase()}` : 'image/jpeg';
+                  formData.append('image', { uri: selectedImage, name: filename, type } as any);
+              }
           }
           await addReviewAPI(formData, user.token);
           const reviewsRes = await getReviewsAPI(id);
@@ -258,7 +264,10 @@ export default function BookDetailsScreen() {
       {/* Floating Button */}
       {activeTab === 'Overview' && (
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.bookNowButton}>
+        <TouchableOpacity 
+          style={styles.bookNowButton}
+          onPress={() => router.push({ pathname: '/orders/create', params: { bookId: book._id, shopId: book.shop?._id || book.shop } })}
+        >
           <Text style={styles.bookNowText}>Reserve Book</Text>
           <Ionicons name="paper-plane-outline" size={20} color="white" style={styles.bookNowIcon} />
         </TouchableOpacity>

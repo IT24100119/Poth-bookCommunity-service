@@ -107,6 +107,12 @@ export default function AccountScreen() {
                     <Text style={styles.menuText}>{isEditing ? "Cancel Edit" : "Edit Profile"}</Text>
                     <Ionicons name="chevron-forward" size={20} color="#ccc" />
                   </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/orders')}>
+                    <Ionicons name="cart-outline" size={24} color="#333" />
+                    <Text style={styles.menuText}>My Orders</Text>
+                    <Ionicons name="chevron-forward" size={20} color="#ccc" />
+                  </TouchableOpacity>
                   
                   <TouchableOpacity style={styles.menuItem} onPress={handleDelete}>
                     <Ionicons name="trash-outline" size={24} color="#F44336" />

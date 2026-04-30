@@ -91,13 +91,19 @@ export default function OwnerDashboard() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}><Ionicons name="flash" size={20} /> Quick Actions</Text>
           <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/owner/shop/create')}>
               <Ionicons name="business" size={20} color="white" />
               <Text style={styles.actionText}>Register New Shop</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.actionButton, styles.actionButtonSecondary]}>
+            <TouchableOpacity style={[styles.actionButton, styles.actionButtonSecondary]} onPress={() => router.push('/owner/orders')}>
+              <Ionicons name="cart" size={20} color="#003D71" />
+              <Text style={[styles.actionText, styles.actionTextSecondary]}>Shop Orders</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={[styles.actionsRow, { marginTop: 10 }]}>
+            <TouchableOpacity style={[styles.actionButton, styles.actionButtonSecondary]} onPress={() => router.push('/owner/book')}>
               <Ionicons name="sync" size={20} color="#003D71" />
-              <Text style={[styles.actionText, styles.actionTextSecondary]}>Update Stock</Text>
+              <Text style={[styles.actionText, styles.actionTextSecondary]}>Update Stock (Books)</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -106,7 +112,7 @@ export default function OwnerDashboard() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>My Shops</Text>
-            <TouchableOpacity><Text style={styles.viewLink}>View Analytics</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/owner/shop')}><Text style={styles.viewLink}>Manage My Shops</Text></TouchableOpacity>
           </View>
           {MY_SHOPS.map(shop => (
             <TouchableOpacity key={shop.id} style={styles.shopCard}>

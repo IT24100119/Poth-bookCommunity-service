@@ -111,7 +111,8 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   columnWrapper: {
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
+    gap: 20,
   },
   emptyContainer: {
     alignItems: 'center',
